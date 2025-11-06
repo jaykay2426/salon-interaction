@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Salon Interaction</title>
+</head>
+<body>
+  <script>
+
+let name = prompt("Welcome to Jay's Salon! What's your name?");
+alert(`Hello ${name}, welcome to the salon!`);
+
+let gender = prompt("Are you male or female?").toLowerCase();
+
+const maleStyles = {
+  "low cut": 2000,
+  "punk": 2500,
+  "skin cut": 1500,
+  "afro": 3000
+};
+
+const femaleStyles = {
+  "braids": 5000,
+  "weave": 4000,
+  "fixing": 3500,
+  "ghana weaving": 6000
+};
+
+let chosenStyle;
+let price = 0;
+
+
+if (gender === "male") {
+  alert("Please proceed to the male section.");
+  let styles = "Available male styles:\n";
+  for (let style in maleStyles) {
+    styles += `${style} - ₦${maleStyles[style]}\n`;
+  }
+  chosenStyle = prompt(styles + "\nWhich haircut would you like?").toLowerCase();
+
+  if (!maleStyles[chosenStyle]) {
+    alert(`Sorry ${name}, that style is not obtainable.`);
+  } else {
+    price = maleStyles[chosenStyle];
+    let agree = confirm(`The ${chosenStyle} costs ₦${price}. Do you want to continue?`);
+    if (!agree) {
+      alert("Alright, maybe next time!");
+    } else {
+      handlePayment(name, price);
+    }
+  }
+
+} else if (gender === "female") {
+  alert("Please proceed to the female section.");
+  let styles = "Available female styles:\n";
+  for (let style in femaleStyles) {
+    styles += `${style} - ₦${femaleStyles[style]}\n`;
+  }
+  chosenStyle = prompt(styles + "\nWhich style would you like?").toLowerCase();
+
+  if (!femaleStyles[chosenStyle]) {
+    alert(`Sorry ${name}, that style is not obtainable.`);
+  } else {
+    price = femaleStyles[chosenStyle];
+    let agree = confirm(`The ${chosenStyle} costs ₦${price}. Do you want to continue?`);
+    if (!agree) {
+      alert("Alright, maybe next time!");
+    } else {
+      handlePayment(name, price);
+    }
+  }
+
+} else {
+  alert("Invalid input. Please restart and enter either 'male' or 'female'.");
+}
+
+function handlePayment(name, price) {
+  alert(`Hello ${name}, your bill is ₦${price}. Please pay.`);
+  let payment = parseFloat(prompt("Enter the amount you are paying: ₦"));
+
+  if (payment > price) {
+    let change = payment - price;
+    alert(`Thank you, ${name}! Your change is ₦${change}.`);
+    alert(`Goodbye ${name}, have a great day!`);
+  } else if (payment < price) {
+    let balance = price - payment;
+    alert(`You are ₦${balance} short, please pay the balance.`);
+    let extra = parseFloat(prompt("Enter the remaining amount: ₦"));
+    if (extra + payment === price) {
+      alert(`Payment complete. Thank you, ${name}!`);
+      alert(`Goodbye ${name}, have a lovely day!`);
+    } else {
+      alert(`Payment still incomplete. Please visit the cashier.`);
+    }
+  } else {
+    alert(`Perfect, ${name}! Payment received in full.`);
+    alert(`Goodbye ${name}, hope to see you again!`);
+  }
+}
+
+  </script>
+</body>
+</html>
