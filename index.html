@@ -1,104 +1,243 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Salon Interaction</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Jay’s Salon Chat Assistant 💈</title>
+<style>
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #ffdee9, #51e4df);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+  }
+
+  .chat-container {
+    background: white;
+    width: 90%;
+    max-width: 450px;
+    height: 90vh;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    overflow: hidden;
+  }
+
+  .chat-header {
+    background: linear-gradient(45deg, red, blue);
+    color: white;
+    padding: 15px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .chat-box {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+    background: #f9f9ff;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .bubble {
+    max-width: 75%;
+    padding: 12px;
+    border-radius: 15px;
+    margin: 8px 0;
+    font-size: 15px;
+    word-wrap: break-word;
+    animation: fadeIn 0.3s ease-in;
+  }
+
+  .bot {
+    background: #e3f2fd;
+    color: #333;
+    align-self: flex-start;
+  }
+
+  .user {
+    background: #ff0077;
+    color: white;
+    align-self: flex-end;
+  }
+
+  .chat-input {
+    display: flex;
+    border-top: 1px solid #ddd;
+    padding: 10px;
+    background: #fff;
+  }
+
+  .chat-input input {
+    flex: 1;
+    padding: 10px;
+    border-radius: 25px;
+    border: 1px solid #ccc;
+    outline: none;
+    font-size: 15px;
+  }
+
+  .chat-input button {
+    background: #ff0077;
+    border: none;
+    color: white;
+    border-radius: 25px;
+    padding: 0 20px;
+    margin-left: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+  }
+
+  .chat-input button:hover {
+    background: #ff3399;
+    transform: scale(1.05);
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
 </head>
 <body>
+  <div class="chat-container">
+    <div class="chat-header">💬 Jay’s Salon Assistant</div>
+    <div class="chat-box" id="chatBox"></div>
+    <div class="chat-input">
+      <input id="userInput" type="text" placeholder="Type here..." />
+      <button id="sendBtn">Send</button>
+    </div>
+  </div>
+
   <script>
+    const chatBox = document.getElementById('chatBox');
+    const userInput = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
 
-let name = prompt("Welcome to Jay's Salon! What's your name?");
-alert(`Hello ${name}, welcome to the salon!`);
+    const hairstyles = {
+      male: [
+        { name: "Low Cut", price: 1500 },
+        { name: "Fade", price: 2000 },
+        { name: "Dreads", price: 5000 },
+      ],
+      female: [
+        { name: "Braids", price: 4000 },
+        { name: "Wig Install", price: 6000 },
+        { name: "Hair Coloring", price: 8000 },
+      ]
+    };
 
-let gender = prompt("Are you male or female?").toLowerCase();
+    let step = 0;
+    let userData = {};
 
-const maleStyles = {
-  "low cut": 2000,
-  "punk": 2500,
-  "skin cut": 1500,
-  "afro": 3000
-};
-
-const femaleStyles = {
-  "braids": 5000,
-  "weave": 4000,
-  "fixing": 3500,
-  "ghana weaving": 6000
-};
-
-let chosenStyle;
-let price = 0;
-
-
-if (gender === "male") {
-  alert("Please proceed to the male section.");
-  let styles = "Available male styles:\n";
-  for (let style in maleStyles) {
-    styles += `${style} - ₦${maleStyles[style]}\n`;
-  }
-  chosenStyle = prompt(styles + "\nWhich haircut would you like?").toLowerCase();
-
-  if (!maleStyles[chosenStyle]) {
-    alert(`Sorry ${name}, that style is not obtainable.`);
-  } else {
-    price = maleStyles[chosenStyle];
-    let agree = confirm(`The ${chosenStyle} costs ₦${price}. Do you want to continue?`);
-    if (!agree) {
-      alert("Alright, maybe next time!");
-    } else {
-      handlePayment(name, price);
+    function addMessage(text, sender) {
+      const bubble = document.createElement('div');
+      bubble.classList.add('bubble', sender);
+      bubble.textContent = text;
+      chatBox.appendChild(bubble);
+      chatBox.scrollTop = chatBox.scrollHeight;
     }
-  }
 
-} else if (gender === "female") {
-  alert("Please proceed to the female section.");
-  let styles = "Available female styles:\n";
-  for (let style in femaleStyles) {
-    styles += `${style} - ₦${femaleStyles[style]}\n`;
-  }
-  chosenStyle = prompt(styles + "\nWhich style would you like?").toLowerCase();
-
-  if (!femaleStyles[chosenStyle]) {
-    alert(`Sorry ${name}, that style is not obtainable.`);
-  } else {
-    price = femaleStyles[chosenStyle];
-    let agree = confirm(`The ${chosenStyle} costs ₦${price}. Do you want to continue?`);
-    if (!agree) {
-      alert("Alright, maybe next time!");
-    } else {
-      handlePayment(name, price);
+    function botReply(text, delay = 700) {
+      setTimeout(() => addMessage(text, 'bot'), delay);
     }
-  }
 
-} else {
-  alert("Invalid input. Please restart and enter either 'male' or 'female'.");
-}
+    function nextStep(input) {
+      switch(step) {
+        case 0:
+          userData.name = input;
+          botReply(`Nice to meet you, ${input}! What’s your gender? (male/female)`);
+          step++;
+          break;
 
-function handlePayment(name, price) {
-  alert(`Hello ${name}, your bill is ₦${price}. Please pay.`);
-  let payment = parseFloat(prompt("Enter the amount you are paying: ₦"));
+        case 1:
+          const gender = input.toLowerCase();
+          if (gender !== 'male' && gender !== 'female') {
+            botReply("Please type 'male' or 'female' 👀");
+            return;
+          }
+          userData.gender = gender;
+          botReply(`Perfect! Here are some ${gender} hairstyles:`);
+          hairstyles[gender].forEach((s, i) => botReply(`${i + 1}. ${s.name} — ₦${s.price}`, 600 * (i + 1)));
+          setTimeout(() => botReply("Type the number of the hairstyle you want 💇‍♂️"), 2000);
+          step++;
+          break;
 
-  if (payment > price) {
-    let change = payment - price;
-    alert(`Thank you, ${name}! Your change is ₦${change}.`);
-    alert(`Goodbye ${name}, have a great day!`);
-  } else if (payment < price) {
-    let balance = price - payment;
-    alert(`You are ₦${balance} short, please pay the balance.`);
-    let extra = parseFloat(prompt("Enter the remaining amount: ₦"));
-    if (extra + payment === price) {
-      alert(`Payment complete. Thank you, ${name}!`);
-      alert(`Goodbye ${name}, have a lovely day!`);
-    } else {
-      alert(`Payment still incomplete. Please visit the cashier.`);
+        case 2:
+          const choiceIndex = parseInt(input) - 1;
+          const chosen = hairstyles[userData.gender][choiceIndex];
+          if (!chosen) {
+            botReply("Hmm, that’s not a valid choice 😅");
+            return;
+          }
+          userData.choice = chosen;
+          botReply(`You picked ${chosen.name} costing ₦${chosen.price}. Enter your payment amount 💰`);
+          step++;
+          break;
+
+        case 3:
+          const payment = parseInt(input);
+          if (isNaN(payment)) {
+            botReply("Please enter a valid number for your payment.");
+            return;
+          }
+
+          if (payment < userData.choice.price) {
+            const balance = userData.choice.price - payment;
+            botReply(`That’s ₦${balance} short. Please enter the remaining amount.`);
+            step = 4;
+          } else {
+            const change = payment - userData.choice.price;
+            botReply(`Awesome! 💅 Payment received. Your change is ₦${change}.`);
+            setTimeout(() => botReply(`Thanks ${userData.name}! Enjoy your ${userData.choice.name} ✨`), 1000);
+            step = 99;
+          }
+          break;
+
+        case 4:
+          const extra = parseInt(input);
+          if (isNaN(extra)) {
+            botReply("Please enter a valid number for the remaining amount.");
+            return;
+          }
+          if (extra + userData.choice.price === userData.choice.price) {
+            botReply("Payment complete. Thank you!");
+          } else {
+            botReply("Payment still incomplete. Please see the cashier.");
+          }
+          step = 99;
+          break;
+
+        default:
+          botReply("We’re done! Want to start again? Reload the page 🔁");
+      }
     }
-  } else {
-    alert(`Perfect, ${name}! Payment received in full.`);
-    alert(`Goodbye ${name}, hope to see you again!`);
-  }
-}
 
+    sendBtn.addEventListener('click', () => {
+      const input = userInput.value.trim();
+      if (!input) return;
+      addMessage(input, 'user');
+      userInput.value = '';
+      nextStep(input);
+    });
+
+    userInput.addEventListener('keypress', e => {
+      if (e.key === 'Enter') sendBtn.click();
+    });
+
+    botReply("Hello there! Welcome to Jay’s Salon 💈");
+    setTimeout(() => botReply("What’s your name? 😊"), 1000);
   </script>
 </body>
 </html>
